@@ -23,8 +23,14 @@ def handleRequest(stream):
     print 'Spotify uri:', obj.tracks.items[0].uri
 
 def setParams(query):
+    q=""
+    if 'artist' in query:
+        q = u'track:' + query['track'] + ' artist:' + query['artist']
+    else:
+        q = u'track:' + query['track']
+
     config = {
-        'q': 'track:'+query['track']+' artist:'+query['artist'],
+        'q': q,
         'type': 'track',
         'limit': query['limit'] or 1
     }
@@ -42,19 +48,17 @@ def search(opts):
             'artist': opts[1],
             'limit': 1
         }
+        print 'searching track: "%s" of Artist: "%s"' % (opts[0], opts[1])
     else:
-        print 'opt', opts
         query = {
-            'track': opts[0],
+            'track': opts,
             'limit': 1
         }
+        print 'searching track: "%s"' % (opts)
 
     params= setParams(query)
-    print 'params', params
     request= URL_BASE + urllib.urlencode(params)
-
-    print 'searching track: "%s" of Artist: "%s"' % (query['track'], query['artist'])
-
+    print 'url search:', request
     try:
         response = urllib2.urlopen(request)
         handleRequest(response)
@@ -76,7 +80,6 @@ def loadPLaylist(fich):
     if os.path.isfile(fich):
         try:
             ext = os.path.splitext(fich)[1][1:].lower()
-            print "la ext", ext
             if ext == 'm3u':
                 processM3u(fich)
             elif ext == 'pls':

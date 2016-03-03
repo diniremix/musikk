@@ -18,12 +18,35 @@ python musikker.py playlist.m3u
 ## Parameters
 > **[-v, --v, --version]** print the current version
 > **[-s, --s, --search]** search by song or artist
-> **[-l, --l, --load]** load a playlist
+> **[-l, --l, --load]** load a playlist (m3u, pls, xspf)
+
+## Examples
+- search by song and artist:
+
+```python
+python musikker.py -s 'lithium:nirvana'
+```
+
+> Note the **":"** character separator
+
+- song search (only)
+
+```python
+python musikker.py -s 'Over the Rainbow'
+```
+
+- load a playlist
+```python
+python musikker.py -l awesomeMix.m3u
+```
+
+> will support playlist's M3U, PLS and xspf
 
 ## ToDO
-- Import from m3u playlist 
-- Import from pls playlist 
-- Import from xspf playlist 
+- fix the limit (default 1)
+- Import from m3u playlist
+- Import from pls playlist
+- Import from xspf playlist
 
 ## Thanks to
 - [Frankity](https://github.com/Frankity/)

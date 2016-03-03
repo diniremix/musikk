@@ -12,8 +12,13 @@ Clone this repo.
 
 
 ```python
-$ python musikker.py playlist.m3u
+python musikker.py playlist.m3u
 ```
+
+## Parameters
+> **[-v, --v, --version]** print the current version
+> **[-s, --s, --search]** search by song or artist
+> **[-l, --l, --load]** load a playlist
 
 ## ToDO
 - Import from m3u playlist 
@@ -22,7 +27,12 @@ $ python musikker.py playlist.m3u
 
 ## Thanks to
 - [Frankity](https://github.com/Frankity/)
+- [jda](https://github.com/jacadenac)
 - [Stack Overflow forum](http://goo.gl/4t0twE)
+
+## License
+
+The full text of the license can be found in the file LGPL.txt
 
 ### Contact
 [Diniremix](https://github.com/diniremix)

@@ -30,14 +30,27 @@ def setParams(query):
     }
     return config
 
-def search():
-    query={
-        'artist':'evanescence',
-        'track':'tourniquet',
-        'limit':1
-    }
+def loadList(filename):
+    pass
+
+def search(opts):
+    query= {}
+    if ':' in opts:
+        opts = str.split(opts, ':')
+        query = {
+            'track': opts[0],
+            'artist': opts[1],
+            'limit': 1
+        }
+    else:
+        print 'opt', opts
+        query = {
+            'track': opts[0],
+            'limit': 1
+        }
 
     params= setParams(query)
+    print 'params', params
     request= URL_BASE + urllib.urlencode(params)
 
     print 'searching track: "%s" of Artist: "%s"' % (query['track'], query['artist'])
@@ -50,5 +63,39 @@ def search():
     except urllib2.URLError as e:
         print 'Error with the url:', e.reason
 
-print 'getting json data...'
-search()
+def processM3u(arg):
+    print "processM3u:", arg
+
+def processPls(arg):
+    print "processPls:", arg
+
+def processXspf(arg):
+    print "processXspf:", arg
+
+def loadPLaylist(fich):
+    if os.path.isfile(fich):
+        try:
+            ext = os.path.splitext(fich)[1][1:].lower()
+            print "la ext", ext
+            if ext == 'm3u':
+                processM3u(fich)
+            elif ext == 'pls':
+                processPls(fich)
+            elif ext == 'xspf':
+                processXspf(fich)
+            else:
+                print "this file type is not supported"
+        except Exception as e:
+            print "An error occurred while processing the file:", fich
+            print "Error:", e
+    else:
+        print "The file: %s does not exist, check the path or filename" % (fich)
+
+#arguments list
+parser = argparse.ArgumentParser()
+parser.add_argument("-s", '--search', help="search by song or artist", type=search)
+parser.add_argument("-l", '--load', help="load a playlist", type=loadPLaylist)
+parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
+
+if __name__ == '__main__':
+    args = parser.parse_args()

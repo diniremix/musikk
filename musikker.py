@@ -1,26 +1,23 @@
 #! /usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import argparse, sys, os, urllib2, json, urllib
+import argparse, os, urllib2, json, urllib
 from collections import namedtuple
+from libs import m3u, pls, log
 
 URL_BASE = 'https://api.spotify.com/v1/search?'
 
-if sys.platform.startswith('linux'):
-    os.system('clear')
-elif sys.platform.startswith('win'):
-    os.system('cls')
 
 def handleRequest(stream):
     req = stream.read()
     # the magic!
     obj = json.loads(req, object_hook=lambda d: namedtuple('musikker', d.keys())(*d.values()))
 
-    print 'Done!'
-    print 'Artist:', obj.tracks.items[0].artists[0].name
-    print 'Album:', obj.tracks.items[0].album.name
-    print 'Track:', obj.tracks.items[0].name
-    print 'Spotify uri:', obj.tracks.items[0].uri
+    log.success('Done!')
+    log.info('Artist:', obj.tracks.items[0].artists[0].name)
+    log.info('Album:', obj.tracks.items[0].album.name)
+    log.info('Track:', obj.tracks.items[0].name)
+    log.info('Spotify uri:', obj.tracks.items[0].uri)
 
 def setParams(query):
     q=""
@@ -36,9 +33,6 @@ def setParams(query):
     }
     return config
 
-def loadList(filename):
-    pass
-
 def search(opts):
     query= {}
     if ':' in opts:
@@ -48,51 +42,42 @@ def search(opts):
             'artist': opts[1],
             'limit': 1
         }
-        print 'searching track: "%s" of Artist: "%s"' % (opts[0], opts[1])
+        log.success('searching track: "%s" of Artist: "%s"' % (opts[0], opts[1]))
     else:
         query = {
             'track': opts,
             'limit': 1
         }
-        print 'searching track: "%s"' % (opts)
+        log.success('searching track: "%s"' % (opts))
 
     params= setParams(query)
     request= URL_BASE + urllib.urlencode(params)
-    print 'url search:', request
+    log.info('url to search:', request)
     try:
         response = urllib2.urlopen(request)
         handleRequest(response)
     except urllib2.HTTPError as e:
-        print 'Error:', e.code, 'the url:', e.url, e.reason
+        log.err('Error:', e.code, 'the url:', e.url, e.reason)
     except urllib2.URLError as e:
-        print 'Error with the url:', e.reason
-
-def processM3u(arg):
-    print "processM3u:", arg
-
-def processPls(arg):
-    print "processPls:", arg
-
-def processXspf(arg):
-    print "processXspf:", arg
+        log.err('Error with the url:', e.reason)
 
 def loadPLaylist(fich):
     if os.path.isfile(fich):
         try:
             ext = os.path.splitext(fich)[1][1:].lower()
             if ext == 'm3u':
-                processM3u(fich)
+                m3u.proccess(fich)
             elif ext == 'pls':
-                processPls(fich)
+                pls.proccess(fich)
             elif ext == 'xspf':
-                processXspf(fich)
+                log.warn("xspf not supported yet")
             else:
-                print "this file type is not supported"
+                log.err("this file type is not supported")
         except Exception as e:
-            print "An error occurred while processing the file:", fich
-            print "Error:", e
+            log.err("An error occurred while processing the file:", fich)
+            log.err("Error:", e)
     else:
-        print "The file: %s does not exist, check the path or filename" % (fich)
+        log.err("The file: %s does not exist, check the path or filename" % (fich))
 
 #arguments list
 parser = argparse.ArgumentParser()
@@ -101,4 +86,5 @@ parser.add_argument("-l", '--load', help="load a playlist", type=loadPLaylist)
 parser.add_argument('-v', '--version', action='version', version='%(prog)s 0.1')
 
 if __name__ == '__main__':
+    log.clear()
     args = parser.parse_args()

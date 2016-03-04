@@ -1,23 +1,44 @@
 #! /usr/bin/env python
 # -*- coding: UTF-8 -*-
 
-import argparse, os, urllib2, json, urllib
+import argparse, os, json, urllib, httplib
+import json
+import urllib2, urllib, httplib
 from collections import namedtuple
 from libs import m3u, pls, log
 
 URL_BASE = 'https://api.spotify.com/v1/search?'
 
-
 def handleRequest(stream):
     req = stream.read()
-    # the magic!
-    obj = json.loads(req, object_hook=lambda d: namedtuple('musikker', d.keys())(*d.values()))
+    is_valid= False
+    try:
+        json.loads(req)
+        is_valid=True
+    except ValueError, e:
+        log.err("response is not a valid json")
 
-    log.success('Done!')
-    log.info('Artist:', obj.tracks.items[0].artists[0].name)
-    log.info('Album:', obj.tracks.items[0].album.name)
-    log.info('Track:', obj.tracks.items[0].name)
-    log.info('Spotify uri:', obj.tracks.items[0].uri)
+    if is_valid is True:
+        # the magic!
+        obj = json.loads(req, object_hook=lambda d: namedtuple('musikker', d.keys())(*d.values()))
+        if hasattr(obj, 'tracks'):
+            if hasattr(obj.tracks, 'items'):
+                total_items = len(obj.tracks.items)
+                if total_items > 0:
+                    print
+                    log.warn("items found:", total_items)
+                    log.info('Artist:', obj.tracks.items[0].artists[0].name)
+                    log.info('Album:', obj.tracks.items[0].album.name)
+                    log.info('Track:', obj.tracks.items[0].name)
+                    log.warn('Spotify uri:', obj.tracks.items[0].uri)
+                    print
+                else:
+                    log.warn("response does not have items")
+            else:
+                log.err("response has no attribute 'items'")
+        else:
+            log.err("response has no attribute 'tracks'")
+
 
 def setParams(query):
     q=""
@@ -53,6 +74,7 @@ def search(opts):
     params = setParams(query)
     request = URL_BASE + urllib.urlencode(params)
     log.info('url to search:', request)
+
     try:
         response = urllib2.urlopen(request)
         status = response.getcode()

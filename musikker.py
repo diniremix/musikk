@@ -50,16 +50,32 @@ def search(opts):
         }
         log.success('searching track: "%s"' % (opts))
 
-    params= setParams(query)
-    request= URL_BASE + urllib.urlencode(params)
+    params = setParams(query)
+    request = URL_BASE + urllib.urlencode(params)
     log.info('url to search:', request)
     try:
         response = urllib2.urlopen(request)
-        handleRequest(response)
-    except urllib2.HTTPError as e:
-        log.err('Error:', e.code, 'the url:', e.url, e.reason)
-    except urllib2.URLError as e:
+        status = response.getcode()
+        if status == 200:
+            log.info('response status:', status)
+            handleRequest(response)
+        elif status == 404:
+            log.warn('response status:', status)
+        else:
+            log.err('response status:', status)
+
+    except urllib2.HTTPError, e:
+        log.err('HTTPError:', e.code, 'the url:', e.url, e.reason)
+    except urllib2.URLError, e:
         log.err('Error with the url:', e.reason)
+    except httplib.HTTPException, e:
+        log.err('HTTPException', e.reason)
+    except urllib2.IOError, e:
+        log.err('urllib2.IOError', str(e))
+    except Exception, e:
+        log.err('Exception', e.reason)
+    except IOError, e:
+        log.err("can't connect, reason: ", e.reason)
 
 def loadPLaylist(fich):
     if os.path.isfile(fich):

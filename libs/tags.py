@@ -45,3 +45,4 @@ def getMetaData(fullname, playlists):
     print
     log.err('track processing:', str(index))
     saveMetaData(fullname, tagInfo, index)
+    return tagInfo

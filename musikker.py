@@ -5,7 +5,7 @@ import argparse, os, json, urllib, httplib
 import json
 import urllib2, urllib, httplib
 from collections import namedtuple
-from libs import m3u, pls, log
+from libs import m3u, pls, log, tags
 
 URL_BASE = 'https://api.spotify.com/v1/search?'
 
@@ -102,11 +102,13 @@ def search(opts):
 def loadPLaylist(fich):
     if os.path.isfile(fich):
         try:
+            playlistName = os.path.basename(fich)[:3] + '.msk'
             ext = os.path.splitext(fich)[1][1:].lower()
             if ext == 'm3u':
                 m3u.proccess(fich)
             elif ext == 'pls':
-                pls.proccess(fich)
+                playlist = pls.proccess(fich)
+                tags.getMetaData(playlistName, playlist)
             elif ext == 'xspf':
                 log.warn("xspf not supported yet")
             else:

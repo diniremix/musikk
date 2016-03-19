@@ -108,7 +108,9 @@ def loadPLaylist(fich):
                 m3u.proccess(fich)
             elif ext == 'pls':
                 playlist = pls.proccess(fich)
-                tags.getMetaData(playlistName, playlist)
+                result=tags.getMetaData(playlistName, playlist)
+                for item in result:
+                    search(item)
             elif ext == 'xspf':
                 log.warn("xspf not supported yet")
             else:
